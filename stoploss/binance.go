@@ -37,19 +37,19 @@ func (exchange *Binance) GetBalance(coin string) (string, error) {
 }
 
 // GetMarketPrice get last price for market pair
-func (exchange *Binance) GetMarketPrice(market string) (string, error) {
+func (exchange *Binance) GetMarketPrice(market string) (float64, error) {
 	prices, err := exchange.api.NewListPricesService().Symbol(market).Do(exchange.ctx)
 	if err != nil {
-		return "0", err
+		return 0, err
 	}
 
 	for _, p := range prices {
 		if p.Symbol == market {
-			return p.Price, nil
+			return strconv.ParseFloat(p.Price, 64)
 		}
 	}
 
-	return "0", nil
+	return 0, nil
 }
 
 // Sell create a sell order to market price
