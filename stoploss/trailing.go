@@ -29,7 +29,7 @@ func NewTrailing(exchange Exchange, notify *Notify, orderType string, market str
 		exchange:   exchange,
 		notify:     notify,
 		orderType:  strings.ToUpper(orderType),
-		market:     pair[0] + "_" + pair[1],
+		market:     pair[0] + pair[1],
 		baseCoin:   pair[0],
 		countCoin:  pair[1],
 		price:      price,
