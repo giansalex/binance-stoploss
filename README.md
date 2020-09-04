@@ -19,9 +19,9 @@ Simple command to run bot stoploss
 ```
 
 For buy orders
-> Buy 100 USDT when `BTC` up 0.5%
+> Buy 0.01 `BTC` when price up 0.5%
 ```sh
-./binance -type=BUY -pair=BTC/USDT -percent=0.5 -amount=100
+./binance -type=BUY -pair=BTC/USDT -percent=0.5 -amount=0.01
 ```
 
 For sell orders with static stoploss
