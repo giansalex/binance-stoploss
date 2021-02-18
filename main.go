@@ -9,6 +9,7 @@ import (
 
 	"github.com/adshao/go-binance"
 	"github.com/giansalex/binance-stoploss/stoploss"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 var (
@@ -38,7 +39,11 @@ func main() {
 		log.Fatal("a price or percent parameter is required")
 	}
 
+	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = nil
+	retryClient.RetryMax = 10
 	api := binance.NewClient(apiKey, secret)
+	api.HTTPClient = retryClient.StandardClient()
 	notify := stoploss.NewNotify(os.Getenv("TELEGRAM_TOKEN"), *chatPtr)
 	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notify, *typePtr, *pairPtr, *percentPtr/100, *amountPtr, *pricePtr)
 
