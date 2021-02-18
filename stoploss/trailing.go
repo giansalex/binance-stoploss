@@ -82,7 +82,7 @@ func (tlg *Trailing) runSell() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create sell order, error:" + err.Error())
 	} else {
-		tlg.notify.Send(fmt.Sprintf("Sell: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.baseCoin, tlg.baseCoin, marketPrice, order))
+		tlg.notify.Send(fmt.Sprintf("Sell: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.baseCoin, tlg.market, marketPrice, order))
 	}
 
 	return true
@@ -117,7 +117,7 @@ func (tlg *Trailing) runBuy() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create buy order, error:" + err.Error())
 	} else {
-		tlg.notify.Send(fmt.Sprintf("Buy: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.countCoin, tlg.baseCoin, marketPrice, order))
+		tlg.notify.Send(fmt.Sprintf("Buy: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.baseCoin, tlg.market, marketPrice, order))
 	}
 
 	return true
