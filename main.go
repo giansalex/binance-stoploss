@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/adshao/go-binance"
+	binance "github.com/adshao/go-binance/v2"
 	"github.com/giansalex/binance-stoploss/stoploss"
 	"github.com/hashicorp/go-retryablehttp"
 )

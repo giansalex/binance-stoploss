@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/adshao/go-binance"
+	binance "github.com/adshao/go-binance/v2"
 )
 
 // Binance exchange
