@@ -2,6 +2,7 @@ package stoploss
 
 import (
 	"fmt"
+	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -19,7 +20,7 @@ func NewNotify(telegramToken string, channelID int64) *Notify {
 
 // Send send message
 func (notify *Notify) Send(message string) {
-	fmt.Println(message)
+	log.Println(message)
 
 	if notify.tlgToken == "" {
 		return
