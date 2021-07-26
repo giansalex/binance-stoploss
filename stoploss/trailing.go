@@ -133,6 +133,10 @@ func (tlg *Trailing) getSellStop(price float64) float64 {
 }
 
 func (tlg *Trailing) notifyStopLossOnChange(prev float64, next float64, price float64) {
+	if !tlg.config.NotifyStopChange {
+		return
+	}
+
 	result := big.NewFloat(prev).Cmp(big.NewFloat(next))
 
 	if result == 0 {

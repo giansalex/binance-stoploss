@@ -14,13 +14,14 @@ import (
 )
 
 var (
-	typePtr     = flag.String("type", "SELL", "order type: SELL or BUY")
-	pairPtr     = flag.String("pair", "", "market pair, example: BNB/USDT")
-	percentPtr  = flag.Float64("percent", 0.00, "percent (for trailing stop loss), example: 3.0 (3%)")
-	pricePtr    = flag.Float64("price", 0.00, "price (for static stop loss), example: 9200.00 (BTC price)")
-	intervalPtr = flag.Int("interval", 30, "interval in seconds to update price, example: 30 (30 sec.)")
-	amountPtr   = flag.String("amount", "", "(optional) amount to order (sell or buy) on stoploss")
-	chatPtr     = flag.Int64("telegram.chat", 0, "(optional) telegram User ID for notify")
+	typePtr          = flag.String("type", "SELL", "order type: SELL or BUY")
+	pairPtr          = flag.String("pair", "", "market pair, example: BNB/USDT")
+	percentPtr       = flag.Float64("percent", 0.00, "percent (for trailing stop loss), example: 3.0 (3%)")
+	pricePtr         = flag.Float64("price", 0.00, "price (for static stop loss), example: 9200.00 (BTC price)")
+	intervalPtr      = flag.Int("interval", 30, "interval in seconds to update price, example: 30 (30 sec.)")
+	amountPtr        = flag.String("amount", "", "(optional) amount to order (sell or buy) on stoploss")
+	notifyChangesPtr = flag.Bool("stop-change", false, "Notify on stoploss change (default: false)")
+	chatPtr          = flag.Int64("telegram.chat", 0, "(optional) telegram User ID for notify")
 )
 
 func main() {
@@ -47,11 +48,12 @@ func main() {
 	api.HTTPClient = retryClient.StandardClient()
 	notify := stoploss.NewNotify(os.Getenv("TELEGRAM_TOKEN"), *chatPtr)
 	config := &stoploss.Config{
-		OrderType:  strings.ToUpper(*typePtr),
-		Market:     *pairPtr,
-		Price:      *pricePtr,
-		Quantity:   *amountPtr,
-		StopFactor: *percentPtr / 100,
+		OrderType:        strings.ToUpper(*typePtr),
+		Market:           *pairPtr,
+		Price:            *pricePtr,
+		Quantity:         *amountPtr,
+		StopFactor:       *percentPtr / 100,
+		NotifyStopChange: *notifyChangesPtr,
 	}
 	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notify, config)
 
