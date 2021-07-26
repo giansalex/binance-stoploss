@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	binance "github.com/adshao/go-binance/v2"
@@ -45,7 +46,14 @@ func main() {
 	api := binance.NewClient(apiKey, secret)
 	api.HTTPClient = retryClient.StandardClient()
 	notify := stoploss.NewNotify(os.Getenv("TELEGRAM_TOKEN"), *chatPtr)
-	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notify, *typePtr, *pairPtr, *percentPtr/100, *amountPtr, *pricePtr)
+	config := &stoploss.Config{
+		OrderType:  strings.ToUpper(*typePtr),
+		Market:     *pairPtr,
+		Price:      *pricePtr,
+		Quantity:   *amountPtr,
+		StopFactor: *percentPtr / 100,
+	}
+	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notify, config)
 
 	for {
 		if trailing.RunStop() {
