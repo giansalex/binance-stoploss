@@ -63,7 +63,7 @@ func (tlg *Trailing) runSell() bool {
 	stop := tlg.getSellStop(marketPrice)
 
 	if marketPrice > stop {
-		tlg.notifyStopLossChange(tlg.lastStop, stop, marketPrice)
+		tlg.notifyStopLossOnChange(tlg.lastStop, stop, marketPrice)
 
 		tlg.lastStop = stop
 		return false
@@ -98,7 +98,7 @@ func (tlg *Trailing) runBuy() bool {
 	stop := tlg.getBuyStop(marketPrice)
 
 	if stop > marketPrice {
-		tlg.notifyStopLossChange(tlg.lastStop, stop, marketPrice)
+		tlg.notifyStopLossOnChange(tlg.lastStop, stop, marketPrice)
 
 		tlg.lastStop = stop
 		return false
@@ -139,7 +139,7 @@ func (tlg *Trailing) getSellStop(price float64) float64 {
 	return tlg.price
 }
 
-func (tlg *Trailing) notifyStopLossChange(prev float64, next float64, price float64) {
+func (tlg *Trailing) notifyStopLossOnChange(prev float64, next float64, price float64) {
 	result := big.NewFloat(prev).Cmp(big.NewFloat(next))
 
 	if result == 0 {
