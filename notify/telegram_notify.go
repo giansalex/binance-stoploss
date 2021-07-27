@@ -21,6 +21,7 @@ func (tgNotify *TelegramNotify) Send(message string) error {
 	}
 
 	msg := tgbotapi.NewMessage(tgNotify.chatID, message)
+	msg.ParseMode = "markdown"
 
 	_, err = bot.Send(msg)
 
