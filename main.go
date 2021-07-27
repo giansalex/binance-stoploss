@@ -9,6 +9,7 @@ import (
 	"time"
 
 	binance "github.com/adshao/go-binance/v2"
+	"github.com/giansalex/binance-stoploss/notify"
 	"github.com/giansalex/binance-stoploss/stoploss"
 	"github.com/hashicorp/go-retryablehttp"
 )
@@ -22,6 +23,12 @@ var (
 	amountPtr        = flag.String("amount", "", "(optional) amount to order (sell or buy) on stoploss")
 	notifyChangesPtr = flag.Bool("stop-change", false, "Notify on stoploss change (default: false)")
 	chatPtr          = flag.Int64("telegram.chat", 0, "(optional) telegram User ID for notify")
+	mailHostPtr      = flag.String("mail.host", "", "(optional) SMTP Host")
+	mailPortPtr      = flag.Int("mail.port", 587, "(optional) SMTP Port")
+	mailUserPtr      = flag.String("mail.user", "", "(optional) SMTP User")
+	mailPassPtr      = flag.String("mail.pass", "", "(optional) SMTP Password")
+	mailFromPtr      = flag.String("mail.from", "", "(optional) email sender")
+	mailToPtr        = flag.String("mail.to", "", "(optional) email receptor")
 )
 
 func main() {
@@ -46,7 +53,7 @@ func main() {
 	retryClient.RetryMax = 10
 	api := binance.NewClient(apiKey, secret)
 	api.HTTPClient = retryClient.StandardClient()
-	notify := stoploss.NewNotify(os.Getenv("TELEGRAM_TOKEN"), *chatPtr)
+	notify := buildNotify()
 	config := &stoploss.Config{
 		OrderType:        strings.ToUpper(*typePtr),
 		Market:           *pairPtr,
@@ -64,4 +71,20 @@ func main() {
 
 		time.Sleep(time.Duration(*intervalPtr) * time.Second)
 	}
+}
+
+func buildNotify() notify.SingleNotify {
+	notifiers := []notify.SingleNotify{&notify.LogNotify{}}
+
+	tgToken := os.Getenv("TELEGRAM_TOKEN")
+	if *chatPtr != 0 && tgToken != "" {
+		notifiers = append(notifiers, notify.NewTelegramNotify(tgToken, *chatPtr))
+	}
+
+	if *mailHostPtr != "" && *mailUserPtr != "" && *mailPassPtr != "" && *mailFromPtr != "" && *mailToPtr != "" {
+		subject := "Binance StopLoss Notify"
+		notifiers = append(notifiers, notify.NewMailNotify(*mailHostPtr, *mailPortPtr, *mailUserPtr, *mailPassPtr, subject, *mailFromPtr, *mailToPtr))
+	}
+
+	return stoploss.NewNotify(notifiers)
 }
