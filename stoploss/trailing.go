@@ -6,13 +6,13 @@ import (
 	"math/big"
 	"strings"
 
-	bNotify "github.com/giansalex/binance-stoploss/notify"
+	"github.com/giansalex/binance-stoploss/notify"
 )
 
 // Trailing stop-loss runner
 type Trailing struct {
 	exchange  Exchange
-	notify    bNotify.SingleNotify
+	notify    notify.SingleNotify
 	config    *Config
 	market    string
 	baseCoin  string
@@ -21,7 +21,7 @@ type Trailing struct {
 }
 
 // NewTrailing new trailing instance
-func NewTrailing(exchange Exchange, notify bNotify.SingleNotify, config *Config) *Trailing {
+func NewTrailing(exchange Exchange, notify notify.SingleNotify, config *Config) *Trailing {
 	pair := strings.Split(strings.ToUpper(config.Market), "/")
 
 	tlg := &Trailing{
