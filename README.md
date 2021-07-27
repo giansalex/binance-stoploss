@@ -30,11 +30,24 @@ For sell orders with static stoploss
 ./binance -pair=BTC/USDT -price=9400 -amount=0.1
 ```
 
-Use telegram for notifications.
+## Notifications
+
+- Telegram.
 ```sh
 ./binance -pair=BTC/USDT -percent=3 -interval=60 -telegram.chat=<user-id>
 ```
 > For get user id, talk o the [userinfobot](https://t.me/userinfobot)
+
+- Mailing.
+```sh
+./binance -pair=BTC/USDT -percent=3 \
+      -mail.host="smtp.example.com" \
+      -mail.port=587 \
+      -mail.user="user@example.com" \
+      -mail.pass="xxxx" \
+      -mail.from="user@example.com" \
+      -mail.to="bob@gmail.com"
+```
 
 List available parameters 
 ```sh
