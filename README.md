@@ -30,26 +30,72 @@ For sell orders with static stoploss
 ./binance -pair=BTC/USDT -price=9400 -amount=0.1
 ```
 
-Use telegram for notifications.
+## Notifications
+
+- Telegram.
 ```sh
 ./binance -pair=BTC/USDT -percent=3 -interval=60 -telegram.chat=<user-id>
 ```
-> For get user id, talk o the [userinfobot](https://t.me/userinfobot)
+![telegram binance bot](https://user-images.githubusercontent.com/14926587/127190283-b7117dd2-dd03-421b-ae49-95997503ae67.png)
+
+> For get user id, talk to the [userinfobot](https://t.me/userinfobot)
+
+
+- Mailing.
+```sh
+./binance -pair=BTC/USDT -percent=3 \
+      -mail.host="smtp.example.com" \
+      -mail.port=587 \
+      -mail.user="user@example.com" \
+      -mail.pass="xxxx" \
+      -mail.from="user@example.com" \
+      -mail.to="bob@gmail.com"
+```
+
+> You can notify both: telegram, mail.
+
+## Docker
+
+You can run in docker container. 
+```bash
+docker pull giansalex/binance-stoploss
+# create container
+docker run -d --name binance_sell_BTC giansalex/binance-stoploss \
+      -type=BUY \
+      -pair=BTC/USDT \
+      -percent=5 \
+      -amount=0.01
+```
 
 List available parameters 
 ```sh
-  -type string
-        order type: SELL or BUY (default: SELL)
-  -pair string
-        market pair, example: BNB/USDT
+  -amount string
+        (optional) amount to order (sell or buy) on stoploss
   -interval int
         interval in seconds to update price, example: 30 (30 sec.) (default 30)
-  -price float
-        price (for static stoploss)
+  -mail.from string
+        (optional) email sender
+  -mail.host string
+        (optional) SMTP Host
+  -mail.pass string
+        (optional) SMTP Password
+  -mail.port int
+        (optional) SMTP Port (default 587)
+  -mail.to string
+        (optional) email receptor
+  -mail.user string
+        (optional) SMTP User
+  -pair string
+        market pair, example: BNB/USDT
   -percent float
-        percent (for trailing stoploss), example: 3.0 (3%)
-  -amount float
-        (optional) amount to order (sell or buy) on stoploss, default all balance
+        percent (for trailing stop loss), example: 3.0 (3%)
+  -price float
+        price (for static stop loss), example: 9200.00 (BTC price)
+  -stop-change
+        Notify on stoploss change (default: false)
   -telegram.chat int
         (optional) telegram User ID for notify
+  -type string
+        order type: SELL or BUY (default "SELL")
+
 ```

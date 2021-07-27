@@ -5,39 +5,36 @@ import (
 	"math"
 	"math/big"
 	"strings"
+
+	"github.com/giansalex/binance-stoploss/notify"
 )
 
 // Trailing stop-loss runner
 type Trailing struct {
-	exchange   Exchange
-	notify     *Notify
-	orderType  string
-	market     string
-	baseCoin   string
-	countCoin  string
-	lastStop   float64
-	price      float64
-	quantity   string
-	stopFactor float64
+	exchange  Exchange
+	notify    notify.SingleNotify
+	sLog      notify.SingleNotify
+	config    *Config
+	market    string
+	baseCoin  string
+	countCoin string
+	lastStop  float64
 }
 
 // NewTrailing new trailing instance
-func NewTrailing(exchange Exchange, notify *Notify, orderType string, market string, factor float64, quantity string, price float64) *Trailing {
-	pair := strings.Split(strings.ToUpper(market), "/")
+func NewTrailing(exchange Exchange, notify notify.SingleNotify, logNotify notify.SingleNotify, config *Config) *Trailing {
+	pair := strings.Split(strings.ToUpper(config.Market), "/")
 
 	tlg := &Trailing{
-		exchange:   exchange,
-		notify:     notify,
-		orderType:  strings.ToUpper(orderType),
-		market:     pair[0] + pair[1],
-		baseCoin:   pair[0],
-		countCoin:  pair[1],
-		price:      price,
-		quantity:   quantity,
-		stopFactor: factor,
+		exchange:  exchange,
+		notify:    notify,
+		sLog:      logNotify,
+		market:    pair[0] + pair[1],
+		baseCoin:  pair[0],
+		countCoin: pair[1],
 	}
 
-	if tlg.orderType == "BUY" {
+	if tlg.config.OrderType == "BUY" {
 		tlg.lastStop = math.MaxFloat64
 	}
 
@@ -46,7 +43,7 @@ func NewTrailing(exchange Exchange, notify *Notify, orderType string, market str
 
 // RunStop check stop loss apply
 func (tlg *Trailing) RunStop() bool {
-	if tlg.orderType == "BUY" {
+	if tlg.config.OrderType == "BUY" {
 		return tlg.runBuy()
 	}
 
@@ -63,13 +60,13 @@ func (tlg *Trailing) runSell() bool {
 	stop := tlg.getSellStop(marketPrice)
 
 	if marketPrice > stop {
-		tlg.notifyStopLossChange(tlg.lastStop, stop, marketPrice)
+		tlg.notifyStopLossOnChange(tlg.lastStop, stop, marketPrice)
 
 		tlg.lastStop = stop
 		return false
 	}
 
-	quantity := tlg.quantity
+	quantity := tlg.config.Quantity
 	if quantity == "" {
 		quantity, err = tlg.exchange.GetBalance(tlg.baseCoin)
 		if err != nil {
@@ -82,7 +79,9 @@ func (tlg *Trailing) runSell() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create sell order, error:" + err.Error())
 	} else {
-		tlg.notify.Send(fmt.Sprintf("Sell: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.baseCoin, tlg.market, marketPrice, order))
+		msgFmt := "📉 ## <b>SELL</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
+		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
+		tlg.sLog.Send(msgFmt)
 	}
 
 	return true
@@ -98,13 +97,13 @@ func (tlg *Trailing) runBuy() bool {
 	stop := tlg.getBuyStop(marketPrice)
 
 	if stop > marketPrice {
-		tlg.notifyStopLossChange(tlg.lastStop, stop, marketPrice)
+		tlg.notifyStopLossOnChange(tlg.lastStop, stop, marketPrice)
 
 		tlg.lastStop = stop
 		return false
 	}
 
-	quantity := tlg.quantity
+	quantity := tlg.config.Quantity
 	if quantity == "" {
 		quantity, err = tlg.exchange.GetBalance(tlg.countCoin)
 		if err != nil {
@@ -117,34 +116,42 @@ func (tlg *Trailing) runBuy() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create buy order, error:" + err.Error())
 	} else {
-		tlg.notify.Send(fmt.Sprintf("Buy: %s %s - Market Price (%s): %.6f - Order ID: %s", quantity, tlg.baseCoin, tlg.market, marketPrice, order))
+		msgFmt := "📈 ## <b>BUY</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
+		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
+		tlg.sLog.Send(msgFmt)
 	}
 
 	return true
 }
 
 func (tlg *Trailing) getBuyStop(price float64) float64 {
-	if tlg.stopFactor > 0 {
-		return math.Min(tlg.lastStop, price*(1+tlg.stopFactor))
+	if tlg.config.StopFactor > 0 {
+		return math.Min(tlg.lastStop, price*(1+tlg.config.StopFactor))
 	}
 
-	return tlg.price
+	return tlg.config.Price
 }
 
 func (tlg *Trailing) getSellStop(price float64) float64 {
-	if tlg.stopFactor > 0 {
-		return math.Max(tlg.lastStop, price*(1-tlg.stopFactor))
+	if tlg.config.StopFactor > 0 {
+		return math.Max(tlg.lastStop, price*(1-tlg.config.StopFactor))
 	}
 
-	return tlg.price
+	return tlg.config.Price
 }
 
-func (tlg *Trailing) notifyStopLossChange(prev float64, next float64, price float64) {
+func (tlg *Trailing) notifyStopLossOnChange(prev float64, next float64, price float64) {
 	result := big.NewFloat(prev).Cmp(big.NewFloat(next))
 
 	if result == 0 {
 		return
 	}
 
-	tlg.notify.Send(fmt.Sprintf("Stop-loss %s (%s): %.6f - Market Price: %.6f", tlg.market, tlg.orderType, next, price))
+	msg := fmt.Sprintf("New stoploss %s (%s): %.6f - Market Price: %.6f", tlg.market, tlg.config.OrderType, next, price)
+	tlg.sLog.Send(msg)
+
+	if !tlg.config.NotifyStopChange {
+		return
+	}
+	tlg.notify.Send(msg)
 }
