@@ -53,7 +53,7 @@ func Execute() {
 	retryClient.RetryMax = 10
 	api := binance.NewClient(apiKey, secret)
 	api.HTTPClient = retryClient.StandardClient()
-	notify := buildNotify()
+	notifier := buildNotify()
 	config := &stoploss.Config{
 		OrderType:        strings.ToUpper(*typePtr),
 		Market:           *pairPtr,
@@ -62,7 +62,7 @@ func Execute() {
 		StopFactor:       *percentPtr / 100,
 		NotifyStopChange: *notifyChangesPtr,
 	}
-	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notify, config)
+	trailing := stoploss.NewTrailing(stoploss.NewExchange(context.Background(), api), notifier, &notify.LogNotify{}, config)
 
 	for {
 		if trailing.RunStop() {
@@ -74,7 +74,7 @@ func Execute() {
 }
 
 func buildNotify() notify.SingleNotify {
-	notifiers := []notify.SingleNotify{&notify.LogNotify{}}
+	notifiers := []notify.SingleNotify{}
 
 	tgToken := os.Getenv("TELEGRAM_TOKEN")
 	if *chatPtr != 0 && tgToken != "" {

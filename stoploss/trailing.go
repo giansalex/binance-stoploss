@@ -13,6 +13,7 @@ import (
 type Trailing struct {
 	exchange  Exchange
 	notify    notify.SingleNotify
+	sLog      notify.SingleNotify
 	config    *Config
 	market    string
 	baseCoin  string
@@ -21,12 +22,13 @@ type Trailing struct {
 }
 
 // NewTrailing new trailing instance
-func NewTrailing(exchange Exchange, notify notify.SingleNotify, config *Config) *Trailing {
+func NewTrailing(exchange Exchange, notify notify.SingleNotify, logNotify notify.SingleNotify, config *Config) *Trailing {
 	pair := strings.Split(strings.ToUpper(config.Market), "/")
 
 	tlg := &Trailing{
 		exchange:  exchange,
 		notify:    notify,
+		sLog:      logNotify,
 		market:    pair[0] + pair[1],
 		baseCoin:  pair[0],
 		countCoin: pair[1],
@@ -79,6 +81,7 @@ func (tlg *Trailing) runSell() bool {
 	} else {
 		msgFmt := "📉 ## <b>SELL</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
 		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
+		tlg.sLog.Send(msgFmt)
 	}
 
 	return true
@@ -115,6 +118,7 @@ func (tlg *Trailing) runBuy() bool {
 	} else {
 		msgFmt := "📈 ## <b>BUY</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
 		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
+		tlg.sLog.Send(msgFmt)
 	}
 
 	return true
@@ -137,15 +141,17 @@ func (tlg *Trailing) getSellStop(price float64) float64 {
 }
 
 func (tlg *Trailing) notifyStopLossOnChange(prev float64, next float64, price float64) {
-	if !tlg.config.NotifyStopChange {
-		return
-	}
-
 	result := big.NewFloat(prev).Cmp(big.NewFloat(next))
 
 	if result == 0 {
 		return
 	}
 
-	tlg.notify.Send(fmt.Sprintf("New stoploss %s (%s): %.6f - Market Price: %.6f", tlg.market, tlg.config.OrderType, next, price))
+	msg := fmt.Sprintf("New stoploss %s (%s): %.6f - Market Price: %.6f", tlg.market, tlg.config.OrderType, next, price)
+	tlg.sLog.Send(msg)
+
+	if !tlg.config.NotifyStopChange {
+		return
+	}
+	tlg.notify.Send(msg)
 }
