@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -31,7 +31,7 @@ var (
 	mailToPtr        = flag.String("mail.to", "", "(optional) email receptor")
 )
 
-func main() {
+func Execute() {
 	flag.Parse()
 	apiKey := os.Getenv("BINANCE_APIKEY")
 	secret := os.Getenv("BINANCE_SECRET")
