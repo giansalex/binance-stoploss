@@ -28,6 +28,7 @@ func NewTrailing(exchange Exchange, notify notify.SingleNotify, logNotify notify
 	tlg := &Trailing{
 		exchange:  exchange,
 		notify:    notify,
+		config:    config,
 		sLog:      logNotify,
 		market:    pair[0] + pair[1],
 		baseCoin:  pair[0],
