@@ -28,6 +28,7 @@ func NewTrailing(exchange Exchange, notify notify.SingleNotify, logNotify notify
 	tlg := &Trailing{
 		exchange:  exchange,
 		notify:    notify,
+		config:    config,
 		sLog:      logNotify,
 		market:    pair[0] + pair[1],
 		baseCoin:  pair[0],
@@ -80,8 +81,9 @@ func (tlg *Trailing) runSell() bool {
 		tlg.notify.Send("Cannot create sell order, error:" + err.Error())
 	} else {
 		msgFmt := "📉 ## <b>SELL</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
-		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
-		tlg.sLog.Send(msgFmt)
+		msg := fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order)
+		tlg.notify.Send(msg)
+		tlg.sLog.Send(msg)
 	}
 
 	return true
@@ -117,8 +119,9 @@ func (tlg *Trailing) runBuy() bool {
 		tlg.notify.Send("Cannot create buy order, error:" + err.Error())
 	} else {
 		msgFmt := "📈 ## <b>BUY</b> ##\n<i>Market:</i> <code>%s</code>\n<i>Amount:</i> %s <code>%s</code> \n<i>Price:</i> %.6f <code>%s</code>\n<i>Order:</i> %s"
-		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
-		tlg.sLog.Send(msgFmt)
+		msg := fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order)
+		tlg.notify.Send(msg)
+		tlg.sLog.Send(msg)
 	}
 
 	return true
