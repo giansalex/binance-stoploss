@@ -1,6 +1,8 @@
 package notify
 
 import (
+	"strings"
+
 	"gopkg.in/gomail.v2"
 )
 
@@ -27,7 +29,11 @@ func (mailNotify *MailNotify) Send(message string) error {
 	m.SetHeader("From", mailNotify.from)
 	m.SetHeader("To", mailNotify.to)
 	m.SetHeader("Subject", mailNotify.subject)
-	m.SetBody("text/html", message)
+	m.SetBody("text/html", mailNotify.fixLineEnding(message))
 
 	return gomail.Send(mailNotify.sender, m)
+}
+
+func (mailNotify *MailNotify) fixLineEnding(msg string) string {
+	return strings.ReplaceAll(msg, "\n", "<br/>")
 }
