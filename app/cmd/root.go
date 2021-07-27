@@ -82,7 +82,7 @@ func buildNotify() notify.SingleNotify {
 	}
 
 	if *mailHostPtr != "" && *mailUserPtr != "" && *mailPassPtr != "" && *mailFromPtr != "" && *mailToPtr != "" {
-		subject := "Binance StopLoss Notify"
+		subject := "Binance StopLoss Bot"
 		notifiers = append(notifiers, notify.NewMailNotify(*mailHostPtr, *mailPortPtr, *mailUserPtr, *mailPassPtr, subject, *mailFromPtr, *mailToPtr))
 	}
 
