@@ -36,7 +36,10 @@ For sell orders with static stoploss
 ```sh
 ./binance -pair=BTC/USDT -percent=3 -interval=60 -telegram.chat=<user-id>
 ```
-> For get user id, talk o the [userinfobot](https://t.me/userinfobot)
+![telegram binance bot](https://user-images.githubusercontent.com/14926587/127190283-b7117dd2-dd03-421b-ae49-95997503ae67.png)
+
+> For get user id, talk to the [userinfobot](https://t.me/userinfobot)
+
 
 - Mailing.
 ```sh
