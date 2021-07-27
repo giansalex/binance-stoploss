@@ -77,8 +77,8 @@ func (tlg *Trailing) runSell() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create sell order, error:" + err.Error())
 	} else {
-		msgFmt := "📉 **SELL**\n __Market:__ `%s`\n__Amount:__ %s %s\n__Price:__ %.6f\n__Order:__ %s"
-		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, order))
+		msgFmt := "📉 ## *SELL* ##\n_Market:_ `%s`\n_Amount:_ %s `%s`\n_Price:_ %.6f `%s`\n_Order:_ %s"
+		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
 	}
 
 	return true
@@ -113,8 +113,8 @@ func (tlg *Trailing) runBuy() bool {
 	if err != nil {
 		tlg.notify.Send("Cannot create buy order, error:" + err.Error())
 	} else {
-		msgFmt := "📈 **BUY**\n __Market:__ `%s`\n__Amount:__ %s %s\n__Price:__ %.6f\n__Order:__ %s"
-		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, order))
+		msgFmt := "📈 ## *BUY* ##\n_Market:_ `%s`\n_Amount:_ %s `%s`\n_Price:_ %.6f `%s`\n_Order:_ %s"
+		tlg.notify.Send(fmt.Sprintf(msgFmt, tlg.config.Market, quantity, tlg.baseCoin, marketPrice, tlg.countCoin, order))
 	}
 
 	return true
