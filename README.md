@@ -49,6 +49,21 @@ For sell orders with static stoploss
       -mail.to="bob@gmail.com"
 ```
 
+> You can notify both: telegram, mail.
+
+## Docker
+
+You can run in docker container. 
+```bash
+docker pull giansalex/binance-stoploss
+# create container
+docker run -d --name binance_sell_BTC giansalex/binance-stoploss \
+      -type=BUY \
+      -pair=BTC/USDT \
+      -percent=5 \
+      -amount=0.01
+```
+
 List available parameters 
 ```sh
   -amount string
