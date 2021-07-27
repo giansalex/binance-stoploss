@@ -38,18 +38,33 @@ Use telegram for notifications.
 
 List available parameters 
 ```sh
-  -type string
-        order type: SELL or BUY (default: SELL)
-  -pair string
-        market pair, example: BNB/USDT
+  -amount string
+        (optional) amount to order (sell or buy) on stoploss
   -interval int
         interval in seconds to update price, example: 30 (30 sec.) (default 30)
-  -price float
-        price (for static stoploss)
+  -mail.from string
+        (optional) email sender
+  -mail.host string
+        (optional) SMTP Host
+  -mail.pass string
+        (optional) SMTP Password
+  -mail.port int
+        (optional) SMTP Port (default 587)
+  -mail.to string
+        (optional) email receptor
+  -mail.user string
+        (optional) SMTP User
+  -pair string
+        market pair, example: BNB/USDT
   -percent float
-        percent (for trailing stoploss), example: 3.0 (3%)
-  -amount float
-        (optional) amount to order (sell or buy) on stoploss, default all balance
+        percent (for trailing stop loss), example: 3.0 (3%)
+  -price float
+        price (for static stop loss), example: 9200.00 (BTC price)
+  -stop-change
+        Notify on stoploss change (default: false)
   -telegram.chat int
         (optional) telegram User ID for notify
+  -type string
+        order type: SELL or BUY (default "SELL")
+
 ```
