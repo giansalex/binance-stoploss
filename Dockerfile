@@ -10,7 +10,7 @@ RUN apk update && \
 COPY . .
 
 # Build executable
-RUN CGO_ENABLED=0 go build -ldflags "-s -w" -gcflags=all=-l -o /build/binance
+RUN CGO_ENABLED=0 go build -ldflags "-s -w" -gcflags=all=-l -o /build/binance ./app
 
 # Release image
 FROM scratch
