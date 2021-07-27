@@ -13,7 +13,7 @@ func NewTelegramNotify(token string, chatID int64) *TelegramNotify {
 	return &TelegramNotify{token: token, chatID: chatID}
 }
 
-// Send notify to log
+// Send notify to telegram
 func (tgNotify *TelegramNotify) Send(message string) error {
 	bot, err := tgbotapi.NewBotAPI(tgNotify.token)
 	if err != nil {
